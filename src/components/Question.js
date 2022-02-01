@@ -1,8 +1,9 @@
 import React from "react";
-import data from "./data.js";
+//import data from "./data.js";
 import Answers from "./Answers.js";
 
 export default function Question(props) {
+    const [data, setData] = React.useState(fetch("https://opentdb.com/api.php?amount=5&category=9&difficulty=easy&type=multiple"));
     const [selected, setSelected] = React.useState("");
     const [finalData, setFinalData] = React.useState([]);
     const [selectedAnswers, setSelectedAnswers] = React.useState([]);
@@ -19,11 +20,18 @@ export default function Question(props) {
         return correctAnswers;
     }
 
+    function handleReset() {
+        setChecked(true);
+        setScore(0);
+
+    }
+
     function handleSubmit(event) {
         event.preventDefault();
         setChecked(false)
         console.log(score)
     }
+
 
     function addToSelected(obj) {
         setSelectedAnswers(selectedAnswers => [...selectedAnswers, obj]);
@@ -33,22 +41,37 @@ export default function Question(props) {
     ///create a new object with correct answers and incorrect answers randomly shuffled.
 
 
+    React.useEffect(() => {
+        fetch("https://opentdb.com/api.php?amount=5&category=9&difficulty=easy&type=multiple")
+
+            .then((response) => {
+                response.json()
+                    .then((data) => { setData(data) }).catch((error) => { console.log(error) })
+            })
+    }, [])
 
 
-    let newData = data.results.map((question) => {
-        let allOptions = [question.correct_answer, ...question.incorrect_answers];
-        return { ...question, all: allOptions.sort(() => Math.random() - 0.5) };
-    });
+
+    React.useEffect(() => {
+        if (data.results) {
+            console.log(data)
+            let newData = data.results.map((question) => {
+                let allOptions = [question.correct_answer, ...question.incorrect_answers];
+                return { ...question, all: allOptions.sort(() => Math.random() - 0.5) }
+            });
 
 
 
 
 
-    let cleanData = newData.map((question) => {
-        return { ...question, question: question.question.replace(/&quot;/g, '"') };
-    })
+            let cleanData = newData.map((question) => {
+                return { ...question, question: question.question.replace(/&quot;/g, '"') };
+            })
 
-    React.useEffect(() => { setFinalData(cleanData) }, [])
+            setFinalData(cleanData)
+
+        }
+    }, [data])
 
 
 
@@ -68,7 +91,8 @@ export default function Question(props) {
             <form onSubmit={handleSubmit}>
                 {questionComponents}
                 {checked && <button>Check Answers</button>}
-                {!checked && <p className='results'>{`You scored ${score}/5 correct answers`}</p>}
+                {!checked && <div><p className='results'>{`You scored ${score}/5 correct answers`}</p>
+                    <button onClick={handleReset}>Play again</button></div>}
             </form>
         </div>
     );
