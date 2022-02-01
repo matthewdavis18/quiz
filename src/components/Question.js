@@ -29,13 +29,13 @@ export default function Question(props) {
     function handleSubmit(event) {
         event.preventDefault();
         setChecked(false)
-        console.log(score)
+
     }
 
 
     function addToSelected(obj) {
         setSelectedAnswers(selectedAnswers => [...selectedAnswers, obj]);
-        console.log(selectedAnswers)
+
     }
 
     ///create a new object with correct answers and incorrect answers randomly shuffled.
@@ -54,7 +54,7 @@ export default function Question(props) {
 
     React.useEffect(() => {
         if (data.results) {
-            console.log(data)
+
             let newData = data.results.map((question) => {
                 let allOptions = [question.correct_answer, ...question.incorrect_answers];
                 return { ...question, all: allOptions.sort(() => Math.random() - 0.5) }
